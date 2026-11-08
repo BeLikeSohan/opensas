@@ -1,0 +1,133 @@
+# ==============================================================================
+# General / OS & Editors
+# ==============================================================================
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# JetBrains / Rider / WebStorm
+.idea/
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosv
+*.sln.docstates
+*.userprefs
+
+# Generic editor & temp files
+*.swp
+*.swo
+*~
+*.bak
+*.tmp
+
+# ==============================================================================
+# .NET Backend
+# ==============================================================================
+# Build & Output directories
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+
+# Generated files
+Generated\ Files/
+[Tt]est[Rr]esult*/
+
+# NuGet
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Publish output
+publish/
+[Pp]ublish/
+
+# Diagnostics & Profiling
+*.pidb
+*.vsp
+*.vspx
+*.sap
+*.dmp
+*.mdmp
+*.crashdump
+
+# Local app configuration & secrets
+appsettings*.local.json
+appsettings.Production.json
+secrets.json
+
+# Entity Framework & Tools
+efbundle
+efbundle.exe
+
+# .NET HTTP client scratch files
+*.http.env.json
+
+# ==============================================================================
+# React / Node Frontend
+# ==============================================================================
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production build outputs
+dist/
+dist-ssr/
+build/
+out/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env.local
+!.env.example
+
+# Testing & Coverage
+coverage/
+*.lcov
+.nyc_output/
+
+# Cache & Diagnostics
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+.turbo/
+.tsbuildinfo
+vite.config.ts.timestamp-*
+vite.config.js.timestamp-*

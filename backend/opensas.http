@@ -1,0 +1,6 @@
+@opensas_HostAddress = http://localhost:5101
+
+GET {{opensas_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
