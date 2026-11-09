@@ -80,13 +80,9 @@ namespace SchoolAdmission.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Shift")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("Name", "Shift")
+                    b.HasIndex("Name")
                         .IsUnique();
 
                     b.ToTable("Classes", t =>

@@ -7,7 +7,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     protected override void OnModelCreating(ModelBuilder b)
     {
-        b.Entity<SchoolClass>().HasIndex(c => new { c.Name, c.Shift }).IsUnique();
+        b.Entity<SchoolClass>().HasIndex(c => c.Name).IsUnique();
         b.Entity<SchoolClass>().ToTable(t => t.HasCheckConstraint("CK_Capacity", "\"Capacity\" > 0"));
 
         b.Entity<Hold>().Property(h => h.Status).HasConversion<string>().HasMaxLength(16);

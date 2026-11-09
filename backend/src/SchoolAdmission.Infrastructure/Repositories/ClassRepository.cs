@@ -1,0 +1,23 @@
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using SchoolAdmission.Application.Classes;
+using SchoolAdmission.Application.Exceptions;
+
+namespace SchoolAdmission.Infrastructure.Repositories;
+
+internal sealed class ClassRepository(AppDbContext db) : IClassRepository
+{
+    public async Task AddAsync(SchoolClass schoolClass, CancellationToken cancellationToken)
+    {
+        db.Classes.Add(schoolClass);
+
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
+        {
+            throw new DuplicateClassException(schoolClass.Name);
+        }
+    }
+}
