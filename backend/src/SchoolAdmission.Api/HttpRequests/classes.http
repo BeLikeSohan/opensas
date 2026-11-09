@@ -10,8 +10,8 @@ POST {{host}}/classes
 Content-Type: application/json
 
 {
-  "name": "Class 6 - Morning Shift",
-  "totalSeats": 120
+  "name": "Class 7 - Morning Shift",
+  "totalSeats": 130
 }
 
 ### Same name again -> 409 Conflict
