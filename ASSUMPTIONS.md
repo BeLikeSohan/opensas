@@ -1,0 +1,2 @@
+# Assumpions
+Provided requirements sheet didnt asked for any specific ORM, I decided to use Entity as it was the most obvious choice as of current industry standard. As the db driver I am using Npgsql.
