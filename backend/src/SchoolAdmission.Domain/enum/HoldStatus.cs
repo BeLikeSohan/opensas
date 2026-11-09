@@ -1,0 +1,1 @@
+public enum HoldStatus { HELD, CONFIRMED, EXPIRED, CANCELLED }
