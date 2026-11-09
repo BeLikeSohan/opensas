@@ -131,3 +131,4 @@ coverage/
 .tsbuildinfo
 vite.config.ts.timestamp-*
 vite.config.js.timestamp-*
+AI_SPEC.md
