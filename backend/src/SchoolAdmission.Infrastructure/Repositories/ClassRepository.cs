@@ -20,4 +20,19 @@ internal sealed class ClassRepository(AppDbContext db) : IClassRepository
             throw new DuplicateClassException(schoolClass.Name);
         }
     }
+
+    public async Task<IReadOnlyList<ClassSeatCounts>> ListWithSeatCountsAsync(DateTime now, CancellationToken cancellationToken)
+    {
+        return await db.Classes
+            .AsNoTracking()
+            .OrderBy(c => c.CreatedAt)
+            .ThenBy(c => c.Id)
+            .Select(c => new ClassSeatCounts(
+                c.Id,
+                c.Name,
+                c.Capacity,
+                db.Holds.Count(h => h.ClassId == c.Id && h.Status == HoldStatus.HELD && h.ExpiresAt > now),
+                db.Holds.Count(h => h.ClassId == c.Id && h.Status == HoldStatus.CONFIRMED)))
+            .ToListAsync(cancellationToken);
+    }
 }

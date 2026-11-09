@@ -8,6 +8,14 @@ namespace SchoolAdmission.Api.Controllers;
 [Route("classes")]
 public class ClassesController(IClassService classService) : ControllerBase
 {
+    [HttpGet]
+    [ProducesResponseType<IReadOnlyList<ClassSummaryResponse>>(StatusCodes.Status200OK)]
+    public async Task<IActionResult> List(CancellationToken cancellationToken)
+    {
+        var classes = await classService.ListAsync(cancellationToken);
+        return Ok(classes.Select(ClassSummaryResponse.From));
+    }
+
     [HttpPost]
     [ProducesResponseType<ClassResponse>(StatusCodes.Status201Created)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]

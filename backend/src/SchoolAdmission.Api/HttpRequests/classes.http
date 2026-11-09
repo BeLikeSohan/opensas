@@ -1,0 +1,68 @@
+@host = http://localhost:5070
+
+### List all classes with seat counts -> 200 OK
+GET {{host}}/classes
+Accept: application/json
+
+### Create a class -> 201 Created
+# @name createClass
+POST {{host}}/classes
+Content-Type: application/json
+
+{
+  "name": "Class 6 - Morning Shift",
+  "totalSeats": 120
+}
+
+### Same name again -> 409 Conflict
+POST {{host}}/classes
+Content-Type: application/json
+
+{
+  "name": "Class 6 - Morning Shift",
+  "totalSeats": 50
+}
+
+### Empty name -> 400 Bad Request
+POST {{host}}/classes
+Content-Type: application/json
+
+{
+  "name": "",
+  "totalSeats": 120
+}
+
+### Zero seats -> 400 Bad Request
+POST {{host}}/classes
+Content-Type: application/json
+
+{
+  "name": "Class 7 - Day Shift",
+  "totalSeats": 0
+}
+
+### Negative seats -> 400 Bad Request
+POST {{host}}/classes
+Content-Type: application/json
+
+{
+  "name": "Class 8 - Day Shift",
+  "totalSeats": -5
+}
+
+### Missing totalSeats -> 400 Bad Request
+POST {{host}}/classes
+Content-Type: application/json
+
+{
+  "name": "Class 9 - Day Shift"
+}
+
+### Name longer than 200 characters -> 400 Bad Request
+POST {{host}}/classes
+Content-Type: application/json
+
+{
+  "name": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "totalSeats": 10
+}

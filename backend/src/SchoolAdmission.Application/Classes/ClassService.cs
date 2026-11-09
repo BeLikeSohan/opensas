@@ -16,4 +16,20 @@ internal sealed class ClassService(IClassRepository classes, TimeProvider timePr
 
         return new ClassDto(schoolClass.Id, schoolClass.Name, schoolClass.Capacity);
     }
+
+    public async Task<IReadOnlyList<ClassSummaryDto>> ListAsync(CancellationToken cancellationToken)
+    {
+        var now = timeProvider.GetUtcNow().UtcDateTime;
+        var counts = await classes.ListWithSeatCountsAsync(now, cancellationToken);
+
+        return counts
+            .Select(c => new ClassSummaryDto(
+                c.Id,
+                c.Name,
+                c.TotalSeats,
+                c.HeldSeats,
+                c.ConfirmedSeats,
+                AvailableSeats: c.TotalSeats - c.HeldSeats - c.ConfirmedSeats))
+            .ToList();
+    }
 }
