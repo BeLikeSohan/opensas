@@ -70,4 +70,36 @@ internal sealed class HoldService(
             ? dto with { Status = HoldStatus.EXPIRED }
             : dto;
     }
+
+    public async Task ConfirmAsync(Guid holdId, string studentId, CancellationToken cancellationToken)
+    {
+        var now = timeProvider.GetUtcNow().UtcDateTime;
+
+        // Confirming doesn't change seat occupancy (an unexpired HELD hold already counts as taken),
+        // so no class lock is needed; the conditional update alone is race-safe.
+        if (await holds.TryConfirmAsync(holdId, studentId, now, cancellationToken) == 1)
+        {
+            return;
+        }
+
+        // Nothing updated: work out why.
+        var hold = await holds.GetAsync(holdId, cancellationToken);
+
+        // Another student's hold is reported as not found so its existence isn't revealed.
+        if (hold is null || hold.StudentId != studentId)
+        {
+            throw new HoldNotFoundException(holdId);
+        }
+
+        switch (hold.Status)
+        {
+            case HoldStatus.CONFIRMED:
+                return; // Idempotent replay.
+            case HoldStatus.CANCELLED:
+                throw new HoldNotConfirmableException(holdId, hold.Status);
+            default:
+                // EXPIRED, or HELD past its expiry and not yet swept.
+                throw new HoldExpiredException(holdId);
+        }
+    }
 }

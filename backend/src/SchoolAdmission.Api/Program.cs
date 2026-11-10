@@ -14,6 +14,9 @@ builder.Services.AddExceptionHandler<DuplicateClassExceptionHandler>();
 builder.Services.AddExceptionHandler<ClassNotFoundExceptionHandler>();
 builder.Services.AddExceptionHandler<NoSeatsAvailableExceptionHandler>();
 builder.Services.AddExceptionHandler<ActiveHoldExistsExceptionHandler>();
+builder.Services.AddExceptionHandler<HoldNotFoundExceptionHandler>();
+builder.Services.AddExceptionHandler<HoldExpiredExceptionHandler>();
+builder.Services.AddExceptionHandler<HoldNotConfirmableExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 builder.Services.AddControllers()

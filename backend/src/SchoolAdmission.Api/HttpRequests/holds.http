@@ -25,3 +25,18 @@ GET {{host}}/holds/00000000-0000-0000-0000-000000000000
 
 ### Malformed hold id -> 404 Not Found (route constraint)
 GET {{host}}/holds/not-a-guid
+
+### Confirm hold (pay admission fee) -> 200 OK
+POST {{host}}/holds/{{holdId}}/confirm
+X-Student-Id: 20101234567890123
+
+### Confirm again -> 200 OK (idempotent)
+POST {{host}}/holds/{{holdId}}/confirm
+X-Student-Id: 20101234567890123
+
+### Confirm as another student -> 404 Not Found
+POST {{host}}/holds/{{holdId}}/confirm
+X-Student-Id: 20109999999999999
+
+### Confirm without X-Student-Id -> 400 Bad Request
+POST {{host}}/holds/{{holdId}}/confirm

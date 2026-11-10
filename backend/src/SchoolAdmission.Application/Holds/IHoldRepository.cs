@@ -16,6 +16,15 @@ public interface IHoldRepository
     /// <summary>Gets a hold with its class loaded, or null if it does not exist.</summary>
     Task<Hold?> GetWithClassAsync(Guid id, CancellationToken cancellationToken);
 
+    /// <summary>Gets a hold without its class, or null if it does not exist.</summary>
+    Task<Hold?> GetAsync(Guid id, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Atomically confirms the hold if it belongs to the student, is HELD, and is unexpired at <paramref name="now"/>.
+    /// Returns the number of rows updated (0 or 1).
+    /// </summary>
+    Task<int> TryConfirmAsync(Guid id, string studentId, DateTime now, CancellationToken cancellationToken);
+
     /// <summary>Persists a new hold.</summary>
     /// <exception cref="ActiveHoldExistsException">The student already has an active or confirmed hold for the class.</exception>
     Task AddAsync(Hold hold, CancellationToken cancellationToken);

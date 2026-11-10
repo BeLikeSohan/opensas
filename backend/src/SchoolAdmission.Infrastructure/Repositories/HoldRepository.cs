@@ -30,6 +30,21 @@ internal sealed class HoldRepository(AppDbContext db) : IHoldRepository
             .Include(h => h.Class)
             .FirstOrDefaultAsync(h => h.Id == id, cancellationToken);
 
+    public Task<Hold?> GetAsync(Guid id, CancellationToken cancellationToken) =>
+        db.Holds
+            .AsNoTracking()
+            .FirstOrDefaultAsync(h => h.Id == id, cancellationToken);
+
+    public Task<int> TryConfirmAsync(Guid id, string studentId, DateTime now, CancellationToken cancellationToken) =>
+        // A single guarded UPDATE: Postgres row-locks the hold and re-checks the WHERE clause after any
+        // concurrent expire/cancel/confirm commits, so at most one request can move it to CONFIRMED.
+        db.Holds
+            .Where(h => h.Id == id && h.StudentId == studentId &&
+                        h.Status == HoldStatus.HELD && h.ExpiresAt > now)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(h => h.Status, HoldStatus.CONFIRMED)
+                .SetProperty(h => h.ConfirmedAt, now), cancellationToken);
+
     public async Task AddAsync(Hold hold, CancellationToken cancellationToken)
     {
         db.Holds.Add(hold);
