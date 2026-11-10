@@ -703,3 +703,246 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* ---------- Application page ---------- */
+
+.page--narrow {
+  max-width: 880px;
+}
+
+.back-link {
+  align-self: flex-start;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  margin-bottom: -12px;
+}
+
+.back-link:hover {
+  color: var(--ink);
+}
+
+/* Links styled as buttons */
+.btn-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.btn-link:hover {
+  color: #fff;
+}
+
+.btn-lg {
+  min-height: 46px;
+  padding: 0 20px;
+  font-size: 15px;
+  border-radius: 10px;
+}
+
+a.held-link {
+  justify-content: space-between;
+  gap: 12px;
+  text-decoration: none;
+}
+
+a.held-link:hover {
+  color: #5c3d00;
+  background: #f8e6c4;
+}
+
+.status-panel {
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border: 1px solid transparent;
+}
+
+.status-panel > div:first-child {
+  flex: 1 1 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.status-panel__label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.status-panel__clock {
+  font-size: 44px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.status-panel__title {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.status-panel__text {
+  margin: 4px 0 0;
+  font-size: 14px;
+}
+
+.status-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.status-panel--held {
+  background: #fdf7ec;
+  border-color: #f0d9ae;
+  color: #5c3d00;
+}
+
+.status-panel--confirmed {
+  background: var(--green-soft);
+  border-color: #bfdccb;
+  color: var(--green-ink);
+}
+
+.status-panel--expired {
+  background: #f1f0ec;
+  border-color: var(--line);
+  color: var(--ink-2);
+}
+
+.status-panel--cancelled {
+  background: #f8e4e2;
+  border-color: var(--red-line);
+  color: #8e2424;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.section-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.details {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.details div {
+  display: flex;
+  flex-direction: column;
+}
+
+.details dt {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.details dd {
+  margin: 0;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.details dd.mono {
+  font-size: 13px;
+}
+
+@media (max-width: 600px) {
+  .status-panel__clock {
+    font-size: 36px;
+  }
+
+  .status-panel__actions {
+    width: 100%;
+  }
+
+  .status-panel__actions .btn-lg {
+    flex: 1 1 100%;
+  }
+}
+
+/* ---------- Admin ---------- */
+
+.create-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.create-form .field {
+  flex: 1 1 280px;
+  max-width: none;
+}
+
+.create-form .field--seats {
+  flex: 0 1 180px;
+}
+
+.create-form .field input {
+  font-family: var(--sans);
+  font-size: 15px;
+  letter-spacing: normal;
+}
+
+.create-form__submit {
+  width: auto;
+  padding: 0 22px;
+  margin-top: 30px;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.admin-table .num {
+  text-align: right;
+}
+
+.count-held {
+  color: var(--amber-ink);
+}
+
+.count-confirmed {
+  color: var(--green-ink);
+}
+
+.count-available {
+  font-weight: 700;
+  color: var(--green-ink);
+}
+
+.count-full {
+  color: var(--red);
+}
+
+.row-new td {
+  background: var(--green-soft);
+}
+
+@media (max-width: 600px) {
+  .create-form .field--seats {
+    flex: 1 1 100%;
+  }
+
+  .create-form__submit {
+    width: 100%;
+    margin-top: 0;
+  }
+}

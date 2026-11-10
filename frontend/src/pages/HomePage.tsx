@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { createHold, isApiError } from '../api';
 import Alert from '../components/Alert';
 import ClassGrid from '../components/ClassGrid';
@@ -9,7 +10,7 @@ import { useMyHolds } from '../hooks/useMyHolds';
 import { useStudentId } from '../hooks/useStudentId';
 import { useToast, type ToastData } from '../hooks/useToast';
 import type { ClassSummary } from '../types';
-import { formatDateTime, toBanglaNumber } from '../utils/format';
+import { toBanglaNumber } from '../utils/format';
 import { studentIdError } from '../utils/studentId';
 
 function applyErrorToast(err: unknown, className: string): ToastData {
@@ -42,6 +43,7 @@ function HomePage() {
   const [applyingClassId, setApplyingClassId] = useState<string | null>(null);
   const [studentIdRequired, setStudentIdRequired] = useState(false);
   const studentIdInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   const refreshAll = useCallback(() => {
     refreshClasses();
@@ -60,14 +62,10 @@ function HomePage() {
     setApplyingClassId(schoolClass.id);
     try {
       const hold = await createHold(schoolClass.id, studentId);
-      showToast({
-        variant: 'ok',
-        title: `"${schoolClass.name}" শ্রেণিতে আসন সংরক্ষিত হয়েছে`,
-        message: `নিশ্চিত করতে ${formatDateTime(hold.expiresAt)} এর মধ্যে ভর্তি ফি পরিশোধ করুন।`,
-      });
+      // The application page shows the countdown and the pay/cancel actions.
+      navigate(`/applications/${hold.holdId}`);
     } catch (err) {
       showToast(applyErrorToast(err, schoolClass.name));
-    } finally {
       setApplyingClassId(null);
       refreshAll();
     }

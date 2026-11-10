@@ -1,3 +1,4 @@
+import { Link } from 'react-router';
 import type { StudentHold } from '../types';
 import { formatCountdown } from '../utils/format';
 
@@ -22,6 +23,9 @@ function HeldBanner({ hold, now }: HeldBannerProps) {
           <span className="mono">{formatCountdown(remaining)}</span> এর মধ্যে ভর্তি ফি পরিশোধ করুন।
         </span>
       </div>
+      <Link className="btn-green btn-link" to={`/applications/${hold.holdId}`}>
+        আবেদন খুলুন
+      </Link>
     </div>
   );
 }

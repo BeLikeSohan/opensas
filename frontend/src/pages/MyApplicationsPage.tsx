@@ -1,81 +1,22 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router';
-import { cancelHold, confirmHold, isApiError } from '../api';
 import Alert from '../components/Alert';
 import ApplicationTabs from '../components/ApplicationTabs';
-import ApplicationsTable, { type ApplicationView, type PendingHoldAction } from '../components/ApplicationsTable';
+import ApplicationsTable, { type ApplicationView } from '../components/ApplicationsTable';
 import HeldBanner from '../components/HeldBanner';
 import StudentIdInput from '../components/StudentIdInput';
-import Toast from '../components/Toast';
 import { useMyHolds } from '../hooks/useMyHolds';
 import { useNow } from '../hooks/useNow';
 import { useStudentId } from '../hooks/useStudentId';
-import { useToast } from '../hooks/useToast';
-import { HoldStatus, type StudentHold } from '../types';
+import { HoldStatus } from '../types';
 import { APPLICATION_TABS, type ApplicationTabKey } from '../utils/applicationTabs';
 import { effectiveStatus } from '../utils/holdStatus';
-
-/** Bangla text for the backend's confirm/cancel errors (matched on ProblemDetails title). */
-function actionErrorMessage(err: unknown): string {
-  if (!isApiError(err)) return 'অজানা সমস্যা হয়েছে। আবার চেষ্টা করুন।';
-  switch (err.title) {
-    case 'Application expired':
-      return 'আবেদনের মেয়াদ শেষ হয়ে গেছে, আসনটি ছেড়ে দেওয়া হয়েছে।';
-    case 'Application cannot be confirmed':
-      return 'এই আবেদনটি আর নিশ্চিত করা যাবে না।';
-    case 'Application cannot be cancelled':
-      return 'এই আবেদনটি আর বাতিল করা যাবে না।';
-    case 'Application not found':
-      return 'আবেদনটি খুঁজে পাওয়া যায়নি।';
-    default:
-      return err.message;
-  }
-}
 
 function MyApplicationsPage() {
   const { studentId, setStudentId, isValid } = useStudentId();
   const { holds, error, isLoading, refresh } = useMyHolds(studentId, isValid);
   const [activeTab, setActiveTab] = useState<ApplicationTabKey>('all');
-  const [pending, setPending] = useState<PendingHoldAction | null>(null);
-  const { toast, show: showToast, dismiss: dismissToast } = useToast();
   const now = useNow();
-
-  const handleConfirm = async (hold: StudentHold) => {
-    setPending({ holdId: hold.holdId, action: 'confirm' });
-    try {
-      await confirmHold(hold.holdId, studentId);
-      showToast({
-        variant: 'ok',
-        title: 'ভর্তি নিশ্চিত হয়েছে',
-        message: `"${hold.className}" শ্রেণিতে আপনার ভর্তি ফি পরিশোধ সম্পন্ন হয়েছে।`,
-      });
-    } catch (err) {
-      showToast({ variant: 'err', title: 'ভর্তি ফি পরিশোধ করা যায়নি', message: actionErrorMessage(err) });
-    } finally {
-      setPending(null);
-      refresh();
-    }
-  };
-
-  const handleCancel = async (hold: StudentHold) => {
-    if (!window.confirm(`"${hold.className}" শ্রেণির আবেদনটি বাতিল করতে চান? আসনটি অন্যদের জন্য ছেড়ে দেওয়া হবে।`)) {
-      return;
-    }
-    setPending({ holdId: hold.holdId, action: 'cancel' });
-    try {
-      await cancelHold(hold.holdId, studentId);
-      showToast({
-        variant: 'ok',
-        title: 'আবেদন বাতিল হয়েছে',
-        message: `"${hold.className}" শ্রেণির সংরক্ষিত আসনটি ছেড়ে দেওয়া হয়েছে।`,
-      });
-    } catch (err) {
-      showToast({ variant: 'err', title: 'আবেদন বাতিল করা যায়নি', message: actionErrorMessage(err) });
-    } finally {
-      setPending(null);
-      refresh();
-    }
-  };
 
   // Newest deadline first; status is re-derived every second so expiries show without a reload.
   const applications = useMemo<ApplicationView[]>(
@@ -141,19 +82,11 @@ function MyApplicationsPage() {
                 onChange={setActiveTab}
               />
 
-              <ApplicationsTable
-                applications={visible}
-                now={now}
-                pending={pending}
-                onConfirm={handleConfirm}
-                onCancel={handleCancel}
-              />
+              <ApplicationsTable applications={visible} now={now} />
             </>
           )}
         </>
       )}
-
-      {toast && <Toast toast={toast} onClose={dismissToast} />}
     </main>
   );
 }

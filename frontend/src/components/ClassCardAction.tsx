@@ -32,7 +32,7 @@ function ClassCardAction({
   }
 
   if (myHold?.status === HoldStatus.HELD) {
-    return <HoldCountdown expiresAt={myHold.expiresAt} onExpire={onHoldExpire} />;
+    return <HoldCountdown holdId={myHold.holdId} expiresAt={myHold.expiresAt} onExpire={onHoldExpire} />;
   }
 
   if (availableSeats <= 0) {

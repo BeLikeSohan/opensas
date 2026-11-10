@@ -29,6 +29,7 @@ function TopBar() {
             শ্রেণিসমূহ
           </NavLink>
           <NavLink to="/my-applications">আমার আবেদন</NavLink>
+          <NavLink to="/admin">অ্যাডমিন</NavLink>
         </nav>
       </div>
     </header>

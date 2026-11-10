@@ -7,6 +7,8 @@ interface PollResult<T> {
   source: Fetcher<T> | null;
   data: T | null;
   error: string | null;
+  /** HTTP status of the last failure (0 = network error), null when none. */
+  errorStatus: number | null;
 }
 
 /**
@@ -15,7 +17,12 @@ interface PollResult<T> {
  * Pass `null` to stop polling. `fetcher` must be memoized by the caller.
  */
 export function usePolling<T>(fetcher: Fetcher<T> | null, intervalMs: number) {
-  const [result, setResult] = useState<PollResult<T>>({ source: null, data: null, error: null });
+  const [result, setResult] = useState<PollResult<T>>({
+    source: null,
+    data: null,
+    error: null,
+    errorStatus: null,
+  });
   const [reloadKey, setReloadKey] = useState(0);
 
   const refresh = useCallback(() => setReloadKey((k) => k + 1), []);
@@ -29,12 +36,18 @@ export function usePolling<T>(fetcher: Fetcher<T> | null, intervalMs: number) {
     const load = async () => {
       try {
         const data = await fetcher(controller.signal);
-        setResult({ source: fetcher, data, error: null });
+        setResult({ source: fetcher, data, error: null, errorStatus: null });
       } catch (err) {
         if (controller.signal.aborted) return;
         const error = isApiError(err) ? err.message : 'অজানা সমস্যা হয়েছে।';
+        const errorStatus = isApiError(err) ? err.status : null;
         // Keep the last good data when a refresh fails.
-        setResult((prev) => ({ source: fetcher, data: prev.source === fetcher ? prev.data : null, error }));
+        setResult((prev) => ({
+          source: fetcher,
+          data: prev.source === fetcher ? prev.data : null,
+          error,
+          errorStatus,
+        }));
       }
       if (!controller.signal.aborted) timer = setTimeout(load, intervalMs);
     };
@@ -51,6 +64,13 @@ export function usePolling<T>(fetcher: Fetcher<T> | null, intervalMs: number) {
   const isCurrent = fetcher !== null && result.source === fetcher;
   const data = isCurrent ? result.data : null;
   const error = isCurrent ? result.error : null;
+  const errorStatus = isCurrent ? result.errorStatus : null;
 
-  return { data, error, isLoading: fetcher !== null && data === null && error === null, refresh };
+  return {
+    data,
+    error,
+    errorStatus,
+    isLoading: fetcher !== null && data === null && error === null,
+    refresh,
+  };
 }

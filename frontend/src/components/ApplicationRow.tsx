@@ -1,22 +1,15 @@
+import { Link } from 'react-router';
 import { HoldStatus, type StudentHold } from '../types';
 import { formatCountdown, formatDateTime } from '../utils/format';
 import StatusBadge from './StatusBadge';
-
-export type HoldAction = 'confirm' | 'cancel';
 
 interface ApplicationRowProps {
   hold: StudentHold;
   status: HoldStatus;
   now: number;
-  /** The action currently running for this row, if any. */
-  pendingAction: HoldAction | null;
-  /** True while an action runs on any row. */
-  busy: boolean;
-  onConfirm: (hold: StudentHold) => void;
-  onCancel: (hold: StudentHold) => void;
 }
 
-function Outcome({ hold, status, now }: Pick<ApplicationRowProps, 'hold' | 'status' | 'now'>) {
+function Outcome({ hold, status, now }: ApplicationRowProps) {
   switch (status) {
     case HoldStatus.HELD:
       return (
@@ -33,9 +26,7 @@ function Outcome({ hold, status, now }: Pick<ApplicationRowProps, 'hold' | 'stat
   }
 }
 
-function ApplicationRow({ hold, status, now, pendingAction, busy, onConfirm, onCancel }: ApplicationRowProps) {
-  const canAct = status === HoldStatus.HELD;
-
+function ApplicationRow({ hold, status, now }: ApplicationRowProps) {
   return (
     <tr>
       <td>
@@ -48,27 +39,14 @@ function ApplicationRow({ hold, status, now, pendingAction, busy, onConfirm, onC
         <Outcome hold={hold} status={status} now={now} />
       </td>
       <td className="actions">
-        {canAct && (
-          <div className="row-actions">
-            <button
-              type="button"
-              className="btn-green"
-              disabled={busy}
-              aria-busy={pendingAction === 'confirm'}
-              onClick={() => onConfirm(hold)}
-            >
-              {pendingAction === 'confirm' ? 'পরিশোধ হচ্ছে…' : 'ভর্তি ফি পরিশোধ করুন'}
-            </button>
-            <button
-              type="button"
-              className="btn-outline"
-              disabled={busy}
-              aria-busy={pendingAction === 'cancel'}
-              onClick={() => onCancel(hold)}
-            >
-              {pendingAction === 'cancel' ? 'বাতিল হচ্ছে…' : 'বাতিল করুন'}
-            </button>
-          </div>
+        {status === HoldStatus.HELD && (
+          <Link
+            className="btn-green btn-link"
+            to={`/applications/${hold.holdId}`}
+            aria-label={`"${hold.className}" শ্রেণির আবেদন খুলুন`}
+          >
+            আবেদন খুলুন
+          </Link>
         )}
       </td>
     </tr>
