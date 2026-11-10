@@ -9,6 +9,7 @@ import type {
   StudentHold,
   StudentId,
 } from './types';
+import { studentIdError } from './utils/studentId';
 
 const BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5070').replace(/\/+$/, '');
 
@@ -17,12 +18,20 @@ const STUDENT_ID_HEADER = 'X-Student-Id';
 export class ApiError extends Error {
   readonly status: number;
   readonly fieldErrors: Record<string, string[]>;
+  /** ProblemDetails title (e.g. "No seats available"), useful for telling 409s apart. */
+  readonly title: string | undefined;
 
-  constructor(status: number, message: string, fieldErrors: Record<string, string[]> = {}) {
+  constructor(
+    status: number,
+    message: string,
+    fieldErrors: Record<string, string[]> = {},
+    title?: string,
+  ) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
     this.fieldErrors = fieldErrors;
+    this.title = title;
   }
 }
 
@@ -80,7 +89,7 @@ async function toApiError(response: Response): Promise<ApiError> {
     problem.title ||
     defaultMessage(response.status);
 
-  return new ApiError(response.status, message, fieldErrors);
+  return new ApiError(response.status, message, fieldErrors, problem.title);
 }
 
 function defaultMessage(status: number): string {
@@ -116,8 +125,22 @@ export function createClass(input: CreateClassRequest): Promise<ClassResponse> {
 
 // ---- Holds ----
 
+/**
+ * Student-specific endpoints require X-Student-Id. Reject a missing or malformed
+ * ID here, before any request is sent, so it can never reach the server empty.
+ */
+function requireStudentId(studentId: StudentId | null | undefined): StudentId {
+  const error = studentIdError(studentId);
+  if (error) throw new ApiError(400, error, { [STUDENT_ID_HEADER]: [error] });
+  return studentId as StudentId;
+}
+
+/** POST /classes/{classId}/holds — holds one seat for the student. */
 export function createHold(classId: string, studentId: StudentId): Promise<HoldResponse> {
-  return request(`/classes/${seg(classId)}/holds`, { method: 'POST', studentId });
+  return request(`/classes/${seg(classId)}/holds`, {
+    method: 'POST',
+    studentId: requireStudentId(studentId),
+  });
 }
 
 export function getHold(holdId: string, signal?: AbortSignal): Promise<HoldDetails> {
@@ -125,13 +148,19 @@ export function getHold(holdId: string, signal?: AbortSignal): Promise<HoldDetai
 }
 
 export function listMyHolds(studentId: StudentId, signal?: AbortSignal): Promise<StudentHold[]> {
-  return request('/me/holds', { studentId, signal });
+  return request('/me/holds', { studentId: requireStudentId(studentId), signal });
 }
 
 export function confirmHold(holdId: string, studentId: StudentId): Promise<ConfirmHoldResponse> {
-  return request(`/holds/${seg(holdId)}/confirm`, { method: 'POST', studentId });
+  return request(`/holds/${seg(holdId)}/confirm`, {
+    method: 'POST',
+    studentId: requireStudentId(studentId),
+  });
 }
 
 export function cancelHold(holdId: string, studentId: StudentId): Promise<void> {
-  return request(`/holds/${seg(holdId)}`, { method: 'DELETE', studentId });
+  return request(`/holds/${seg(holdId)}`, {
+    method: 'DELETE',
+    studentId: requireStudentId(studentId),
+  });
 }

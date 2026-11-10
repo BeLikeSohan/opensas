@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { STUDENT_ID_LENGTH } from '../types';
+import { isValidStudentId } from '../utils/studentId';
 
 const STORAGE_KEY = 'studentId';
 
@@ -18,10 +18,6 @@ function writeStored(value: string) {
   } catch {
     // Storage unavailable (private mode etc.); the ID still works for this session.
   }
-}
-
-export function isValidStudentId(value: string): boolean {
-  return new RegExp(`^\\d{${STUDENT_ID_LENGTH}}$`).test(value);
 }
 
 /** Student ID kept in localStorage so it survives refreshes. */

@@ -1,24 +1,24 @@
 :root {
-  --text: #1f2937;
-  --muted: #6b7280;
-  --bg: #f5f6f8;
+  --bg: #f6f5f1;
   --surface: #ffffff;
-  --border: #e5e7eb;
-  --primary: #0f766e;
-  --primary-hover: #115e59;
-  --success-bg: #ecfdf5;
-  --success-text: #065f46;
-  --error-bg: #fef2f2;
-  --error-text: #991b1b;
-  --held: #b45309;
-  --confirmed: #1d4ed8;
-  --available: #047857;
+  --ink: #16181d;
+  --ink-2: #3d4148;
+  --muted: #5d6168;
+  --line: #e4e2dc;
+  --track: #eceae4;
+  --green: #1f6f4a;
+  --green-ink: #134a31;
+  --green-soft: #e3f1e8;
+  --amber: #e3a13a;
+  --amber-ink: #7a4f00;
+  --amber-soft: #fbefd9;
+  --red: #a12c2c;
+  --red-soft: #fdf0ef;
+  --red-line: #e8b4af;
 
-  font-family: 'Noto Sans Bengali', 'Nirmala UI', system-ui, sans-serif;
-  font-size: 16px;
-  line-height: 1.6;
-  color: var(--text);
-  background: var(--bg);
+  --sans: 'Noto Sans Bengali', 'Nirmala UI', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+
   color-scheme: light;
 }
 
@@ -28,16 +28,28 @@
 
 body {
   margin: 0;
+  min-height: 100vh;
   background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
 }
 
-h1,
-h2 {
-  margin: 0;
-  font-weight: 600;
+a {
+  color: var(--green);
+}
+
+a:hover {
+  color: var(--green-ink);
 }
 
 button,
 input {
   font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
 }
