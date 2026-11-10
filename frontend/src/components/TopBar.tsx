@@ -1,8 +1,10 @@
+import { Link, NavLink } from 'react-router';
+
 function TopBar() {
   return (
     <header className="topbar">
       <div className="topbar__inner">
-        <a className="brand" href="/">
+        <Link className="brand" to="/">
           <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
             <rect width="30" height="30" rx="8" fill="#16181D" />
             <path
@@ -20,11 +22,13 @@ function TopBar() {
             />
           </svg>
           <span>ভর্তি ২০২৭</span>
-        </a>
+        </Link>
+        {/* NavLink sets aria-current="page" on the active link. */}
         <nav className="nav" aria-label="প্রধান মেনু">
-          <a href="/" aria-current="page">
+          <NavLink to="/" end>
             শ্রেণিসমূহ
-          </a>
+          </NavLink>
+          <NavLink to="/my-applications">আমার আবেদন</NavLink>
         </nav>
       </div>
     </header>

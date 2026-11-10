@@ -16,7 +16,7 @@ export function useMyHolds(studentId: string, enabled: boolean) {
     [studentId, enabled],
   );
 
-  const { data, refresh } = usePolling(fetcher, MY_HOLDS_REFRESH_MS);
+  const { data, error, isLoading, refresh } = usePolling(fetcher, MY_HOLDS_REFRESH_MS);
 
   const holdsByClass = useMemo(() => {
     const map = new Map<string, StudentHold>();
@@ -30,5 +30,5 @@ export function useMyHolds(studentId: string, enabled: boolean) {
     return map;
   }, [data]);
 
-  return { holdsByClass, refresh };
+  return { holds: data, holdsByClass, error, isLoading, refresh };
 }

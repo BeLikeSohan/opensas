@@ -419,3 +419,287 @@
     max-width: none;
   }
 }
+
+/* ---------- My applications ---------- */
+
+.page-head--split {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.lead__id {
+  color: var(--ink);
+}
+
+.link-btn {
+  border: 0;
+  background: transparent;
+  color: var(--green);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 0 4px;
+  cursor: pointer;
+}
+
+.link-btn:hover {
+  color: var(--green-ink);
+  text-decoration: underline;
+}
+
+.btn-dark {
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 10px;
+  background: var(--ink);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-dark:hover {
+  background: #2a2d34;
+  color: #fff;
+}
+
+.banner {
+  background: #fdf7ec;
+  border: 1px solid #f0d9ae;
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.banner__text {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #5c3d00;
+}
+
+.banner__text svg {
+  flex-shrink: 0;
+}
+
+.banner__text strong {
+  font-weight: 600;
+}
+
+.banner .mono {
+  font-weight: 600;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: -12px;
+}
+
+.tabs button {
+  border: 0;
+  background: transparent;
+  min-height: 44px;
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: -1px;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+}
+
+.tabs button[aria-selected='true'] {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+.tabs .count {
+  font-weight: 500;
+  color: var(--muted);
+  margin-left: 2px;
+}
+
+.table-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow-x: auto;
+}
+
+.app-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.app-table thead tr {
+  text-align: left;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.app-table th {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+  font-weight: 600;
+}
+
+.app-table td {
+  padding: 18px 20px;
+  border-bottom: 1px solid #efede8;
+}
+
+.app-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.cls {
+  display: flex;
+  flex-direction: column;
+}
+
+.cls strong {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.cls span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.badge::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 99px;
+  background: currentColor;
+}
+
+.badge--HELD {
+  background: #fbefd9;
+  color: #7a4f00;
+}
+
+.badge--CONFIRMED {
+  background: #e3f1e8;
+  color: #134a31;
+}
+
+.badge--EXPIRED {
+  background: #ecebe7;
+  color: #3d4148;
+}
+
+.badge--CANCELLED {
+  background: #f8e4e2;
+  color: #8e2424;
+}
+
+.applied {
+  color: var(--ink-2);
+}
+
+.left {
+  font-family: var(--mono);
+  font-weight: 600;
+  color: #7a4f00;
+}
+
+.table-empty {
+  padding: 48px 20px;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* ---------- Application row actions ---------- */
+
+.cls-name {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.app-table .actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.row-actions {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.btn-green {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--green);
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-green:hover:not(:disabled) {
+  background: var(--green-ink);
+}
+
+.btn-outline {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid #d6d3cb;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: var(--bg);
+}
+
+.btn-green:disabled,
+.btn-outline:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-green[aria-busy='true'],
+.btn-outline[aria-busy='true'] {
+  cursor: progress;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

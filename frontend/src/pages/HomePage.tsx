@@ -4,7 +4,6 @@ import Alert from '../components/Alert';
 import ClassGrid from '../components/ClassGrid';
 import StudentIdInput from '../components/StudentIdInput';
 import Toast from '../components/Toast';
-import TopBar from '../components/TopBar';
 import { CLASSES_REFRESH_MS, useClasses } from '../hooks/useClasses';
 import { useMyHolds } from '../hooks/useMyHolds';
 import { useStudentId } from '../hooks/useStudentId';
@@ -76,8 +75,6 @@ function HomePage() {
 
   return (
     <>
-      <TopBar />
-
       <main className="page">
         <div className="page-head">
           <h1>শ্রেণি ও আসনের অবস্থা</h1>
