@@ -14,3 +14,5 @@
 7. Cancelling an already cancelled hold returns `204`, keeping `DELETE` idempotent.
 
 8. Only a `HELD`, unexpired hold can be cancelled; cancelling a confirmed or expired hold returns `409 Conflict`.
+
+9. The current time comes from the backend's clock through an injected `TimeProvider`, not from the database's `now()`. Each request reads the clock once and uses that value for every check and timestamp, and tests can swap in a fake clock to control expiry. The trade-off is that with several backend instances each one uses its own clock, so small clock differences between servers can move a hold's expiry by that amount. I assume the servers are synced with NTP, which keeps that difference to milliseconds, well below the hold duration.
