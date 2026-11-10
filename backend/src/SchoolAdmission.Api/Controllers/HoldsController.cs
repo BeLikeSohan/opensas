@@ -28,7 +28,7 @@ public class HoldsController(IHoldService holdService) : ControllerBase
         var hold = await holdService.CreateAsync(new CreateHoldCommand(classId, studentId), cancellationToken);
 
         var response = HoldResponse.From(hold);
-        return Created($"/holds/{response.Id}", response);
+        return Created($"/holds/{response.HoldId}", response);
     }
 
     [HttpGet("holds/{holdId:guid}")]
