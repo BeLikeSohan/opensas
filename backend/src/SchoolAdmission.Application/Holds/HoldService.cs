@@ -102,4 +102,33 @@ internal sealed class HoldService(
                 throw new HoldExpiredException(holdId);
         }
     }
+
+    public async Task CancelAsync(Guid holdId, string studentId, CancellationToken cancellationToken)
+    {
+        var now = timeProvider.GetUtcNow().UtcDateTime;
+
+        // Cancelling only frees a seat, so like confirm it needs no class lock.
+        if (await holds.TryCancelAsync(holdId, studentId, now, cancellationToken) == 1)
+        {
+            return;
+        }
+
+        var hold = await holds.GetAsync(holdId, cancellationToken);
+
+        if (hold is null || hold.StudentId != studentId)
+        {
+            throw new HoldNotFoundException(holdId);
+        }
+
+        switch (hold.Status)
+        {
+            case HoldStatus.CANCELLED:
+                return; // Idempotent replay.
+            case HoldStatus.CONFIRMED:
+                throw new HoldNotCancellableException(holdId, hold.Status);
+            default:
+                // EXPIRED, or HELD past its expiry and not yet swept.
+                throw new HoldNotCancellableException(holdId, HoldStatus.EXPIRED);
+        }
+    }
 }

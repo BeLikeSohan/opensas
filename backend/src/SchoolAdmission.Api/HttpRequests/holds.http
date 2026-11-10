@@ -40,3 +40,18 @@ X-Student-Id: 20109999999999999
 
 ### Confirm without X-Student-Id -> 400 Bad Request
 POST {{host}}/holds/{{holdId}}/confirm
+
+### Cancel hold -> 204 No Content (use a fresh, unconfirmed hold id)
+DELETE {{host}}/holds/{{holdId}}
+X-Student-Id: 20101234567890123
+
+### Cancel again -> 204 No Content (idempotent)
+DELETE {{host}}/holds/{{holdId}}
+X-Student-Id: 20101234567890123
+
+### Cancel as another student -> 404 Not Found
+DELETE {{host}}/holds/{{holdId}}
+X-Student-Id: 20109999999999999
+
+### Cancel without X-Student-Id -> 400 Bad Request
+DELETE {{host}}/holds/{{holdId}}

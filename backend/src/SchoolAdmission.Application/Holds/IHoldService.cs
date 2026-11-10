@@ -22,4 +22,11 @@ public interface IHoldService
     /// <exception cref="HoldExpiredException">The hold has expired.</exception>
     /// <exception cref="HoldNotConfirmableException">The hold was cancelled.</exception>
     Task ConfirmAsync(Guid holdId, string studentId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Cancels the student's unexpired HELD hold, freeing the seat. Idempotent: cancelling an already cancelled hold succeeds.
+    /// </summary>
+    /// <exception cref="HoldNotFoundException">The hold does not exist or belongs to another student.</exception>
+    /// <exception cref="HoldNotCancellableException">The hold is confirmed or expired.</exception>
+    Task CancelAsync(Guid holdId, string studentId, CancellationToken cancellationToken);
 }

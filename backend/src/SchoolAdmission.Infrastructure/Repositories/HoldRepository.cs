@@ -45,6 +45,15 @@ internal sealed class HoldRepository(AppDbContext db) : IHoldRepository
                 .SetProperty(h => h.Status, HoldStatus.CONFIRMED)
                 .SetProperty(h => h.ConfirmedAt, now), cancellationToken);
 
+    public Task<int> TryCancelAsync(Guid id, string studentId, DateTime now, CancellationToken cancellationToken) =>
+        // Same guarded-UPDATE pattern as TryConfirmAsync, so cancel can't race with confirm or expiry.
+        db.Holds
+            .Where(h => h.Id == id && h.StudentId == studentId &&
+                        h.Status == HoldStatus.HELD && h.ExpiresAt > now)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(h => h.Status, HoldStatus.CANCELLED)
+                .SetProperty(h => h.CancelledAt, now), cancellationToken);
+
     public async Task AddAsync(Hold hold, CancellationToken cancellationToken)
     {
         db.Holds.Add(hold);

@@ -17,6 +17,7 @@ builder.Services.AddExceptionHandler<ActiveHoldExistsExceptionHandler>();
 builder.Services.AddExceptionHandler<HoldNotFoundExceptionHandler>();
 builder.Services.AddExceptionHandler<HoldExpiredExceptionHandler>();
 builder.Services.AddExceptionHandler<HoldNotConfirmableExceptionHandler>();
+builder.Services.AddExceptionHandler<HoldNotCancellableExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 builder.Services.AddControllers()

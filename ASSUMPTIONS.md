@@ -10,3 +10,7 @@
 5. Confirming an already confirmed hold returns `200` with the same response, so repeated "Pay Admission Fee" clicks are safe.
 
 6. Confirming an expired or cancelled hold returns `409 Conflict`.
+
+7. Cancelling an already cancelled hold returns `204`, keeping `DELETE` idempotent.
+
+8. Only a `HELD`, unexpired hold can be cancelled; cancelling a confirmed or expired hold returns `409 Conflict`.

@@ -57,4 +57,22 @@ public class HoldsController(IHoldService holdService) : ControllerBase
         await holdService.ConfirmAsync(holdId, studentId, cancellationToken);
         return Ok(new ConfirmHoldResponse(holdId, HoldStatus.CONFIRMED));
     }
+
+    [HttpDelete("holds/{holdId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Cancel(
+        Guid holdId,
+        [FromHeader(Name = StudentIdHeader)]
+        [Required(ErrorMessage = $"The {StudentIdHeader} header is required.")]
+        [StringLength(StudentIdLength, MinimumLength = StudentIdLength,
+            ErrorMessage = $"The {StudentIdHeader} header must be exactly 17 characters.")]
+        string studentId,
+        CancellationToken cancellationToken)
+    {
+        await holdService.CancelAsync(holdId, studentId, cancellationToken);
+        return NoContent();
+    }
 }
