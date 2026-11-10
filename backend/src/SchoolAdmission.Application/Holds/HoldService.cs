@@ -23,6 +23,10 @@ internal sealed class HoldService(
         var schoolClass = await classes.GetForUpdateAsync(command.ClassId, cancellationToken)
             ?? throw new ClassNotFoundException(command.ClassId);
 
+        // Expiry is evaluated lazily: release stale holds first, which also frees the student's
+        // slot in the filtered unique (ClassId, StudentId) index if their previous hold expired.
+        await holds.ExpireStaleAsync(command.ClassId, now, cancellationToken);
+
         if (await holds.HasActiveHoldAsync(command.ClassId, command.StudentId, now, cancellationToken))
         {
             throw new ActiveHoldExistsException(command.ClassId, command.StudentId);
