@@ -22,14 +22,14 @@ internal sealed class ClassService(IClassRepository classes, TimeProvider timePr
         var now = timeProvider.GetUtcNow().UtcDateTime;
         var counts = await classes.ListWithSeatCountsAsync(now, cancellationToken);
 
-        return counts
-            .Select(c => new ClassSummaryDto(
-                c.Id,
-                c.Name,
-                c.TotalSeats,
-                c.HeldSeats,
-                c.ConfirmedSeats,
-                AvailableSeats: c.TotalSeats - c.HeldSeats - c.ConfirmedSeats))
-            .ToList();
+        return counts.Select(ClassSummaryDto.From).ToList();
+    }
+
+    public async Task<ClassSummaryDto?> GetAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var now = timeProvider.GetUtcNow().UtcDateTime;
+        var counts = await classes.GetWithSeatCountsAsync(id, now, cancellationToken);
+
+        return counts is null ? null : ClassSummaryDto.From(counts);
     }
 }

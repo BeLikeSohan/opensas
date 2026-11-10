@@ -14,6 +14,14 @@ Content-Type: application/json
   "totalSeats": 130
 }
 
+### Get a class by id -> 200 OK (replace with a real id from the list)
+GET {{host}}/classes/c09d9936-1022-4f23-8425-ceb44d2436c9
+Accept: application/json
+
+### Unknown class id -> 404 Not Found
+GET {{host}}/classes/00000000-0000-0000-0000-000000000000
+Accept: application/json
+
 ### Same name again -> 409 Conflict
 POST {{host}}/classes
 Content-Type: application/json

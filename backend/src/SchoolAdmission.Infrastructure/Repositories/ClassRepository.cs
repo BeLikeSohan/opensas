@@ -35,4 +35,18 @@ internal sealed class ClassRepository(AppDbContext db) : IClassRepository
                 db.Holds.Count(h => h.ClassId == c.Id && h.Status == HoldStatus.CONFIRMED)))
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<ClassSeatCounts?> GetWithSeatCountsAsync(Guid id, DateTime now, CancellationToken cancellationToken)
+    {
+        return await db.Classes
+            .AsNoTracking()
+            .Where(c => c.Id == id)
+            .Select(c => new ClassSeatCounts(
+                c.Id,
+                c.Name,
+                c.Capacity,
+                db.Holds.Count(h => h.ClassId == c.Id && h.Status == HoldStatus.HELD && h.ExpiresAt > now),
+                db.Holds.Count(h => h.ClassId == c.Id && h.Status == HoldStatus.CONFIRMED)))
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 }

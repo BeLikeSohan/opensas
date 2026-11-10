@@ -16,6 +16,15 @@ public class ClassesController(IClassService classService) : ControllerBase
         return Ok(classes.Select(ClassSummaryResponse.From));
     }
 
+    [HttpGet("{classId:guid}")]
+    [ProducesResponseType<ClassSummaryResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Get(Guid classId, CancellationToken cancellationToken)
+    {
+        var schoolClass = await classService.GetAsync(classId, cancellationToken);
+        return schoolClass is null ? NotFound() : Ok(ClassSummaryResponse.From(schoolClass));
+    }
+
     [HttpPost]
     [ProducesResponseType<ClassResponse>(StatusCodes.Status201Created)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
