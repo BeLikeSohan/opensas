@@ -7,11 +7,6 @@ namespace SchoolAdmission.Infrastructure.Repositories;
 
 internal sealed class HoldRepository(AppDbContext db) : IHoldRepository
 {
-    public Task<int> ExpireStaleAsync(Guid classId, DateTime now, CancellationToken cancellationToken) =>
-        db.Holds
-            .Where(h => h.ClassId == classId && h.Status == HoldStatus.HELD && h.ExpiresAt <= now)
-            .ExecuteUpdateAsync(s => s.SetProperty(h => h.Status, HoldStatus.EXPIRED), cancellationToken);
-
     public Task<bool> HasActiveHoldAsync(Guid classId, string studentId, DateTime now, CancellationToken cancellationToken) =>
         db.Holds.AnyAsync(
             h => h.ClassId == classId && h.StudentId == studentId &&
