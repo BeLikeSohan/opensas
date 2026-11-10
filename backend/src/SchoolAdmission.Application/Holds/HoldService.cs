@@ -53,4 +53,21 @@ internal sealed class HoldService(
 
         return HoldDto.From(hold, schoolClass.Name);
     }
+
+    public async Task<HoldDto?> GetAsync(Guid holdId, CancellationToken cancellationToken)
+    {
+        var hold = await holds.GetWithClassAsync(holdId, cancellationToken);
+        if (hold is null)
+        {
+            return null;
+        }
+
+        var dto = HoldDto.From(hold, hold.Class.Name);
+
+        // Read-only: report lazy expiry without writing; the row is updated on the next write path.
+        var now = timeProvider.GetUtcNow().UtcDateTime;
+        return dto.Status == HoldStatus.HELD && dto.ExpiresAt <= now
+            ? dto with { Status = HoldStatus.EXPIRED }
+            : dto;
+    }
 }

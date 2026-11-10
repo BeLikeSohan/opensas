@@ -13,6 +13,9 @@ public interface IHoldRepository
     /// <summary>Counts seats taken in the class: confirmed holds plus HELD holds unexpired at <paramref name="now"/>.</summary>
     Task<int> CountOccupiedSeatsAsync(Guid classId, DateTime now, CancellationToken cancellationToken);
 
+    /// <summary>Gets a hold with its class loaded, or null if it does not exist.</summary>
+    Task<Hold?> GetWithClassAsync(Guid id, CancellationToken cancellationToken);
+
     /// <summary>Persists a new hold.</summary>
     /// <exception cref="ActiveHoldExistsException">The student already has an active or confirmed hold for the class.</exception>
     Task AddAsync(Hold hold, CancellationToken cancellationToken);

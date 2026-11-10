@@ -24,6 +24,12 @@ internal sealed class HoldRepository(AppDbContext db) : IHoldRepository
                  (h.Status == HoldStatus.CONFIRMED || (h.Status == HoldStatus.HELD && h.ExpiresAt > now)),
             cancellationToken);
 
+    public Task<Hold?> GetWithClassAsync(Guid id, CancellationToken cancellationToken) =>
+        db.Holds
+            .AsNoTracking()
+            .Include(h => h.Class)
+            .FirstOrDefaultAsync(h => h.Id == id, cancellationToken);
+
     public async Task AddAsync(Hold hold, CancellationToken cancellationToken)
     {
         db.Holds.Add(hold);

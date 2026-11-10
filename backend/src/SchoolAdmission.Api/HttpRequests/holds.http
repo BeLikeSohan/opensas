@@ -15,3 +15,13 @@ POST {{host}}/classes/{{classId}}/holds
 ### Unknown class -> 404 Not Found
 POST {{host}}/classes/00000000-0000-0000-0000-000000000000/holds
 X-Student-Id: 20101234567890123
+
+### Get hold details -> 200 OK (replace with an id from the create response)
+@holdId = 40fd6af1-51b7-4e0d-8c6b-9e863f1777d4
+GET {{host}}/holds/{{holdId}}
+
+### Unknown hold -> 404 Not Found
+GET {{host}}/holds/00000000-0000-0000-0000-000000000000
+
+### Malformed hold id -> 404 Not Found (route constraint)
+GET {{host}}/holds/not-a-guid

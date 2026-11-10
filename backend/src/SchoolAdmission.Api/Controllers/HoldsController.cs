@@ -30,4 +30,13 @@ public class HoldsController(IHoldService holdService) : ControllerBase
         var response = HoldResponse.From(hold);
         return Created($"/holds/{response.Id}", response);
     }
+
+    [HttpGet("holds/{holdId:guid}")]
+    [ProducesResponseType<HoldDetailsResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Get(Guid holdId, CancellationToken cancellationToken)
+    {
+        var hold = await holdService.GetAsync(holdId, cancellationToken);
+        return hold is null ? NotFound() : Ok(HoldDetailsResponse.From(hold));
+    }
 }
