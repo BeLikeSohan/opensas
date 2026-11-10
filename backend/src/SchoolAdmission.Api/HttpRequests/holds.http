@@ -1,0 +1,17 @@
+@host = http://localhost:5070
+@classId = c09d9936-1022-4f23-8425-ceb44d2436c9
+
+### Hold a seat -> 201 Created
+POST {{host}}/classes/{{classId}}/holds
+X-Student-Id: 20101234567890123
+
+### Same student again -> 409 Conflict
+POST {{host}}/classes/{{classId}}/holds
+X-Student-Id: 20101234567890123
+
+### Missing X-Student-Id -> 400 Bad Request
+POST {{host}}/classes/{{classId}}/holds
+
+### Unknown class -> 404 Not Found
+POST {{host}}/classes/00000000-0000-0000-0000-000000000000/holds
+X-Student-Id: 20101234567890123

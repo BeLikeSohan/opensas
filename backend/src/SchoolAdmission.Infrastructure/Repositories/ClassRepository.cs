@@ -49,4 +49,15 @@ internal sealed class ClassRepository(AppDbContext db) : IClassRepository
                 db.Holds.Count(h => h.ClassId == c.Id && h.Status == HoldStatus.CONFIRMED)))
             .FirstOrDefaultAsync(cancellationToken);
     }
+
+    public async Task<SchoolClass?> GetForUpdateAsync(Guid id, CancellationToken cancellationToken)
+    {
+        // No LINQ operators after FromSql: composing would wrap the FOR UPDATE in a subquery.
+        var rows = await db.Classes
+            .FromSql($"""SELECT * FROM "Classes" WHERE "Id" = {id} FOR UPDATE""")
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+        return rows.SingleOrDefault();
+    }
 }

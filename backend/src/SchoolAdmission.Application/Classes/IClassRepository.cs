@@ -19,4 +19,10 @@ public interface IClassRepository
     /// Gets one class with seat counts, or null if it does not exist. Only holds that have not expired at <paramref name="now"/> count as held.
     /// </summary>
     Task<ClassSeatCounts?> GetWithSeatCountsAsync(Guid id, DateTime now, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gets a class and locks its row until the current transaction ends, or returns null if it does not exist.
+    /// Must be called inside a transaction.
+    /// </summary>
+    Task<SchoolClass?> GetForUpdateAsync(Guid id, CancellationToken cancellationToken);
 }
