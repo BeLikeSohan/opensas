@@ -40,6 +40,21 @@ public class HoldsController(IHoldService holdService) : ControllerBase
         return hold is null ? NotFound() : Ok(HoldDetailsResponse.From(hold));
     }
 
+    [HttpGet("me/holds")]
+    [ProducesResponseType<IReadOnlyList<StudentHoldResponse>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ListMine(
+        [FromHeader(Name = StudentIdHeader)]
+        [Required(ErrorMessage = $"The {StudentIdHeader} header is required.")]
+        [StringLength(StudentIdLength, MinimumLength = StudentIdLength,
+            ErrorMessage = $"The {StudentIdHeader} header must be exactly 17 characters.")]
+        string studentId,
+        CancellationToken cancellationToken)
+    {
+        var holds = await holdService.ListForStudentAsync(studentId, cancellationToken);
+        return Ok(holds.Select(StudentHoldResponse.From));
+    }
+
     [HttpPost("holds/{holdId:guid}/confirm")]
     [ProducesResponseType<ConfirmHoldResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]

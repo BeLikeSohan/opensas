@@ -16,6 +16,11 @@ public interface IHoldService
     Task<HoldDto?> GetAsync(Guid holdId, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Lists the student's holds, newest first. HELD holds whose expiry has passed are reported as EXPIRED.
+    /// </summary>
+    Task<IReadOnlyList<HoldDto>> ListForStudentAsync(string studentId, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Confirms the student's unexpired HELD hold. Idempotent: confirming an already confirmed hold succeeds.
     /// </summary>
     /// <exception cref="HoldNotFoundException">The hold does not exist or belongs to another student.</exception>

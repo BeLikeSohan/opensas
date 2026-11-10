@@ -62,10 +62,20 @@ internal sealed class HoldService(
             return null;
         }
 
-        var dto = HoldDto.From(hold, hold.Class.Name);
+        return ToDtoWithLazyExpiry(hold, timeProvider.GetUtcNow().UtcDateTime);
+    }
 
-        // Read-only: report lazy expiry without writing; the row is updated on the next write path.
+    public async Task<IReadOnlyList<HoldDto>> ListForStudentAsync(string studentId, CancellationToken cancellationToken)
+    {
+        var studentHolds = await holds.ListByStudentAsync(studentId, cancellationToken);
         var now = timeProvider.GetUtcNow().UtcDateTime;
+        return studentHolds.Select(h => ToDtoWithLazyExpiry(h, now)).ToList();
+    }
+
+    // Read-only: report lazy expiry without writing; the row is updated on the next write path.
+    private static HoldDto ToDtoWithLazyExpiry(Hold hold, DateTime now)
+    {
+        var dto = HoldDto.From(hold, hold.Class.Name);
         return dto.Status == HoldStatus.HELD && dto.ExpiresAt <= now
             ? dto with { Status = HoldStatus.EXPIRED }
             : dto;

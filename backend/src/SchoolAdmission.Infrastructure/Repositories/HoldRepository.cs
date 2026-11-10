@@ -30,6 +30,14 @@ internal sealed class HoldRepository(AppDbContext db) : IHoldRepository
             .Include(h => h.Class)
             .FirstOrDefaultAsync(h => h.Id == id, cancellationToken);
 
+    public async Task<IReadOnlyList<Hold>> ListByStudentAsync(string studentId, CancellationToken cancellationToken) =>
+        await db.Holds
+            .AsNoTracking()
+            .Include(h => h.Class)
+            .Where(h => h.StudentId == studentId)
+            .OrderByDescending(h => h.CreatedAt)
+            .ToListAsync(cancellationToken);
+
     public Task<Hold?> GetAsync(Guid id, CancellationToken cancellationToken) =>
         db.Holds
             .AsNoTracking()

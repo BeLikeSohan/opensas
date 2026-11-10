@@ -16,6 +16,9 @@ public interface IHoldRepository
     /// <summary>Gets a hold with its class loaded, or null if it does not exist.</summary>
     Task<Hold?> GetWithClassAsync(Guid id, CancellationToken cancellationToken);
 
+    /// <summary>Lists the student's holds across all classes, newest first, with their classes loaded.</summary>
+    Task<IReadOnlyList<Hold>> ListByStudentAsync(string studentId, CancellationToken cancellationToken);
+
     /// <summary>Gets a hold without its class, or null if it does not exist.</summary>
     Task<Hold?> GetAsync(Guid id, CancellationToken cancellationToken);
 

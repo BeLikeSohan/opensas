@@ -55,3 +55,10 @@ X-Student-Id: 20109999999999999
 
 ### Cancel without X-Student-Id -> 400 Bad Request
 DELETE {{host}}/holds/{{holdId}}
+
+### List my holds -> 200 OK
+GET {{host}}/me/holds
+X-Student-Id: 20101234567890123
+
+### List my holds without X-Student-Id -> 400 Bad Request
+GET {{host}}/me/holds
