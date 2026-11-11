@@ -34,4 +34,9 @@ public interface IHoldService
     /// <exception cref="HoldNotFoundException">The hold does not exist or belongs to another student.</exception>
     /// <exception cref="HoldNotCancellableException">The hold is confirmed or expired.</exception>
     Task CancelAsync(Guid holdId, string studentId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Marks every HELD hold whose expiry has passed as EXPIRED. Returns the number of holds expired.
+    /// </summary>
+    Task<int> ExpireStaleHoldsAsync(CancellationToken cancellationToken);
 }

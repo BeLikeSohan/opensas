@@ -12,6 +12,13 @@ internal sealed class HoldRepository(AppDbContext db) : IHoldRepository
             .Where(h => h.ClassId == classId && h.Status == HoldStatus.HELD && h.ExpiresAt <= now)
             .ExecuteUpdateAsync(s => s.SetProperty(h => h.Status, HoldStatus.EXPIRED), cancellationToken);
 
+    public Task<int> ExpireAllStaleAsync(DateTime now, CancellationToken cancellationToken) =>
+        // Guarded on Status == HELD and ExpiresAt <= now, the exact complement of TryConfirm/TryCancel's
+        // ExpiresAt > now, so this can never overwrite a hold that was legitimately confirmed or cancelled.
+        db.Holds
+            .Where(h => h.Status == HoldStatus.HELD && h.ExpiresAt <= now)
+            .ExecuteUpdateAsync(s => s.SetProperty(h => h.Status, HoldStatus.EXPIRED), cancellationToken);
+
     public Task<bool> HasActiveHoldAsync(Guid classId, string studentId, DateTime now, CancellationToken cancellationToken) =>
         db.Holds.AnyAsync(
             h => h.ClassId == classId && h.StudentId == studentId &&

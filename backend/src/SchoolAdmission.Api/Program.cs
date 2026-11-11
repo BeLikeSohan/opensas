@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using SchoolAdmission.Api.BackgroundJobs;
 using SchoolAdmission.Api.ExceptionHandling;
 using SchoolAdmission.Application;
 using SchoolAdmission.Infrastructure;
@@ -10,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddHostedService<HoldExpiryWorker>();
 
 builder.Services.AddExceptionHandler<DuplicateClassExceptionHandler>();
 builder.Services.AddExceptionHandler<ClassNotFoundExceptionHandler>();

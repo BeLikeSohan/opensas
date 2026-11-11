@@ -7,6 +7,9 @@ public interface IHoldRepository
     /// <summary>Marks the class's HELD holds that expired at or before <paramref name="now"/> as EXPIRED.</summary>
     Task<int> ExpireStaleAsync(Guid classId, DateTime now, CancellationToken cancellationToken);
 
+    /// <summary>Marks every HELD hold, across all classes, that expired at or before <paramref name="now"/> as EXPIRED.</summary>
+    Task<int> ExpireAllStaleAsync(DateTime now, CancellationToken cancellationToken);
+
     /// <summary>Whether the student has a confirmed hold, or a HELD hold unexpired at <paramref name="now"/>, for the class.</summary>
     Task<bool> HasActiveHoldAsync(Guid classId, string studentId, DateTime now, CancellationToken cancellationToken);
 

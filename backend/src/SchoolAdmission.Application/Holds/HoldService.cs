@@ -54,6 +54,9 @@ internal sealed class HoldService(
         return HoldDto.From(hold, schoolClass.Name);
     }
 
+    public Task<int> ExpireStaleHoldsAsync(CancellationToken cancellationToken) =>
+        holds.ExpireAllStaleAsync(timeProvider.GetUtcNow().UtcDateTime, cancellationToken);
+
     public async Task<HoldDto?> GetAsync(Guid holdId, CancellationToken cancellationToken)
     {
         var hold = await holds.GetWithClassAsync(holdId, cancellationToken);
