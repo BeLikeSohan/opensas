@@ -24,10 +24,20 @@ builder.Services.AddExceptionHandler<HoldNotCancellableExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 const string FrontendCorsPolicy = "Frontend";
+var corsOrigins = (builder.Configuration["CORS_ALLOWED_ORIGINS"] ?? "")
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+    .Select(o => o.TrimEnd('/'))
+    .ToArray();
+
+if (corsOrigins.Length == 0)
+{
+    corsOrigins = ["http://localhost:5173", "http://localhost:3000"];
+}
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(FrontendCorsPolicy, policy =>
-        policy.WithOrigins("http://localhost:5173", "http://localhost:3000")
+        policy.WithOrigins(corsOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod());
 });
