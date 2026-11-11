@@ -18,3 +18,5 @@
 9. The current time comes from the backend's clock through an injected `TimeProvider`, not from the database's `now()`. Each request reads the clock once and uses that value for every check and timestamp, and tests can swap in a fake clock to control expiry. The trade-off is that with several backend instances each one uses its own clock, so small clock differences between servers can move a hold's expiry by that amount. I assume the servers are synced with NTP, which keeps that difference to milliseconds, well below the hold duration.
 
 10. The assignment does not define error response bodies, so errors (`400`, `404`, `409`) use the standard ASP.NET Core ProblemDetails format (`type`, `title`, `status`, `detail`).
+
+11. A student is identified by their birth certificate number, sent in the `X-Student-Id` header. I assume it is exactly 17 ASCII digits (`0-9`), the format of the Bangladeshi birth registration number. A missing header, or a value with letters, spaces, symbols or any other length, returns `400`. The value is stored as text rather than a number so leading zeros are kept.

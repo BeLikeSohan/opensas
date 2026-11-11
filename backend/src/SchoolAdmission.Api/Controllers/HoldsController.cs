@@ -9,7 +9,8 @@ namespace SchoolAdmission.Api.Controllers;
 public class HoldsController(IHoldService holdService) : ControllerBase
 {
     private const string StudentIdHeader = "X-Student-Id";
-    private const int StudentIdLength = 17;
+    private const string StudentIdPattern = "^[0-9]{17}$";
+    private const string StudentIdFormatError = $"The {StudentIdHeader} header must be exactly 17 digits (0-9).";
 
     [HttpPost("classes/{classId:guid}/holds")]
     [ProducesResponseType<HoldResponse>(StatusCodes.Status201Created)]
@@ -20,8 +21,7 @@ public class HoldsController(IHoldService holdService) : ControllerBase
         Guid classId,
         [FromHeader(Name = StudentIdHeader)]
         [Required(ErrorMessage = $"The {StudentIdHeader} header is required.")]
-        [StringLength(StudentIdLength, MinimumLength = StudentIdLength,
-            ErrorMessage = $"The {StudentIdHeader} header must be exactly 17 characters.")]
+        [RegularExpression(StudentIdPattern, ErrorMessage = StudentIdFormatError)]
         string studentId,
         CancellationToken cancellationToken)
     {
@@ -46,8 +46,7 @@ public class HoldsController(IHoldService holdService) : ControllerBase
     public async Task<IActionResult> ListMine(
         [FromHeader(Name = StudentIdHeader)]
         [Required(ErrorMessage = $"The {StudentIdHeader} header is required.")]
-        [StringLength(StudentIdLength, MinimumLength = StudentIdLength,
-            ErrorMessage = $"The {StudentIdHeader} header must be exactly 17 characters.")]
+        [RegularExpression(StudentIdPattern, ErrorMessage = StudentIdFormatError)]
         string studentId,
         CancellationToken cancellationToken)
     {
@@ -64,8 +63,7 @@ public class HoldsController(IHoldService holdService) : ControllerBase
         Guid holdId,
         [FromHeader(Name = StudentIdHeader)]
         [Required(ErrorMessage = $"The {StudentIdHeader} header is required.")]
-        [StringLength(StudentIdLength, MinimumLength = StudentIdLength,
-            ErrorMessage = $"The {StudentIdHeader} header must be exactly 17 characters.")]
+        [RegularExpression(StudentIdPattern, ErrorMessage = StudentIdFormatError)]
         string studentId,
         CancellationToken cancellationToken)
     {
@@ -82,8 +80,7 @@ public class HoldsController(IHoldService holdService) : ControllerBase
         Guid holdId,
         [FromHeader(Name = StudentIdHeader)]
         [Required(ErrorMessage = $"The {StudentIdHeader} header is required.")]
-        [StringLength(StudentIdLength, MinimumLength = StudentIdLength,
-            ErrorMessage = $"The {StudentIdHeader} header must be exactly 17 characters.")]
+        [RegularExpression(StudentIdPattern, ErrorMessage = StudentIdFormatError)]
         string studentId,
         CancellationToken cancellationToken)
     {
