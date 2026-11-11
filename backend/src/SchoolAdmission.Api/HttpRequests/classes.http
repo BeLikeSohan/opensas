@@ -1,4 +1,4 @@
-@host = http://localhost:5070
+@host = http://localhost:8080
 
 ### List all classes with seat counts -> 200 OK
 GET {{host}}/classes

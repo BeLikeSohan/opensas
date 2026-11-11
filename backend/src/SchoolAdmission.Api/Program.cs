@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 using SchoolAdmission.Api.ExceptionHandling;
 using SchoolAdmission.Application;
 using SchoolAdmission.Infrastructure;
@@ -36,6 +37,13 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+// Apply pending EF Core migrations so a fresh database gets its schema.
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler();
 if (app.Environment.IsDevelopment())
@@ -43,7 +51,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+// HTTPS Disabled (see ASSUMPTIONS.md)
+//app.UseHttpsRedirection();
 
 app.UseCors(FrontendCorsPolicy);
 
