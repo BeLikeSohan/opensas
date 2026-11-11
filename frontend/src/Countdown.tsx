@@ -1,8 +1,8 @@
 import { Component } from 'react';
 
 type Props = {
-  expiresAt: string; // ISO date from the backend
-  onExpire: () => void; // called once when the time runs out
+  expiresAt: string;
+  onExpire: () => void;
 };
 
 type State = {
@@ -14,7 +14,6 @@ function secondsUntil(isoDate: string): number {
   return Math.max(0, Math.ceil(ms / 1000));
 }
 
-// Shows "mm:ss" and counts down once per second.
 class Countdown extends Component<Props, State> {
   timer: number | undefined;
 
@@ -23,12 +22,10 @@ class Countdown extends Component<Props, State> {
     this.state = { secondsLeft: secondsUntil(props.expiresAt) };
   }
 
-  // Runs once, when the component appears on screen.
   componentDidMount() {
     this.timer = window.setInterval(this.tick, 1000);
   }
 
-  // Runs once, when the component is removed from the screen.
   componentWillUnmount() {
     window.clearInterval(this.timer);
   }

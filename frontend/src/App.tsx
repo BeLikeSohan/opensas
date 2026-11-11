@@ -11,11 +11,9 @@ type State = {
   studentId: string;
 };
 
-// The root component. It remembers which page is open and the student ID.
 class App extends Component<object, State> {
   state: State = {
     page: 'classes',
-    // Keep the student ID in localStorage so it survives a page refresh.
     studentId: localStorage.getItem('studentId') || '',
   };
 

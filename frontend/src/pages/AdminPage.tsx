@@ -3,13 +3,12 @@ import { createClass, getClasses, type SchoolClass } from '../api';
 
 type State = {
   classes: SchoolClass[];
-  name: string; // text in the "class name" box
-  seats: string; // text in the "total seats" box
+  name: string;
+  seats: string;
   error: string;
   message: string;
 };
 
-// Create a new class and see all classes.
 class AdminPage extends Component<object, State> {
   state: State = {
     classes: [],
@@ -40,7 +39,7 @@ class AdminPage extends Component<object, State> {
   };
 
   handleSubmit = async (e: FormEvent) => {
-    e.preventDefault(); // stop the browser from reloading the page
+    e.preventDefault();
 
     const name = this.state.name.trim();
     const seats = Number(this.state.seats);

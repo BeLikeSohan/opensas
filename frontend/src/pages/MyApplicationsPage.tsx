@@ -17,10 +17,9 @@ type State = {
   holds: Hold[];
   error: string;
   message: string;
-  busy: boolean; // true while a pay/cancel request is running
+  busy: boolean;
 };
 
-// Shows the student's applications. A HELD one has a timer and Pay / Cancel buttons.
 class MyApplicationsPage extends Component<Props, State> {
   state: State = {
     holds: [],
@@ -33,7 +32,6 @@ class MyApplicationsPage extends Component<Props, State> {
 
   componentDidMount() {
     this.loadHolds();
-    // Reload every 5 seconds so status changes show up.
     this.timer = window.setInterval(this.loadHolds, 5000);
   }
 
@@ -41,7 +39,6 @@ class MyApplicationsPage extends Component<Props, State> {
     window.clearInterval(this.timer);
   }
 
-  // Runs after every re-render. Reload when the student ID was changed.
   componentDidUpdate(prevProps: Props) {
     if (prevProps.studentId !== this.props.studentId) {
       this.loadHolds();
@@ -122,7 +119,6 @@ class MyApplicationsPage extends Component<Props, State> {
                   </td>
                   <td>
                     {hold.status === 'HELD' ? (
-                      // When the timer hits 0, reload: the backend will now say EXPIRED.
                       <Countdown expiresAt={hold.expiresAt} onExpire={this.loadHolds} />
                     ) : (
                       '-'

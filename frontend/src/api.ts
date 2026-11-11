@@ -1,6 +1,3 @@
-// All calls to the backend live in this file.
-
-// Backend URL comes from the VITE_API_BASE_URL environment variable (see .env.example).
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 export type SchoolClass = {
@@ -22,12 +19,10 @@ export type Hold = {
   expiresAt: string;
 };
 
-// Birth registration number: exactly 17 digits (same rule as the backend).
 export function isValidStudentId(studentId: string): boolean {
   return /^[0-9]{17}$/.test(studentId);
 }
 
-// Sends one request. Throws an Error with a readable message if it fails.
 async function request(method: string, path: string, studentId?: string, body?: object) {
   const headers: Record<string, string> = {};
   if (body) headers['Content-Type'] = 'application/json';
@@ -45,7 +40,6 @@ async function request(method: string, path: string, studentId?: string, body?: 
   }
 
   if (!response.ok) {
-    // The backend returns errors as ProblemDetails: { title, detail, errors }
     let message = 'Request failed (' + response.status + ')';
     try {
       const problem = await response.json();
@@ -55,17 +49,14 @@ async function request(method: string, path: string, studentId?: string, body?: 
         message = problem.detail || problem.title || message;
       }
     } catch {
-      // body was not JSON, keep the default message
+      message = 'Request failed (' + response.status + ')';
     }
     throw new Error(message);
   }
 
-  // 204 No Content has no body
   if (response.status === 204) return null;
   return response.json();
 }
-
-// ---- Classes ----
 
 export function getClasses(): Promise<SchoolClass[]> {
   return request('GET', '/classes');
@@ -74,8 +65,6 @@ export function getClasses(): Promise<SchoolClass[]> {
 export function createClass(name: string, totalSeats: number): Promise<SchoolClass> {
   return request('POST', '/classes', undefined, { name: name, totalSeats: totalSeats });
 }
-
-// ---- Holds (applications) ----
 
 export function createHold(classId: string, studentId: string): Promise<Hold> {
   return request('POST', '/classes/' + classId + '/holds', studentId);

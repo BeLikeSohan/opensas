@@ -1,22 +1,23 @@
 import { Component } from 'react';
-import { createHold, getClasses, isValidStudentId, type SchoolClass } from '../api';
+import { createHold, getClasses, getMyHolds, isValidStudentId, type Hold, type SchoolClass } from '../api';
 
 type Props = {
   studentId: string;
-  onApplied: () => void; // called after a seat was held successfully
+  onApplied: () => void;
 };
 
 type State = {
   classes: SchoolClass[];
+  myHolds: Hold[];
   loading: boolean;
   error: string;
-  applyingClassId: string; // '' when no request is running
+  applyingClassId: string;
 };
 
-// Lists every class with its seat counts and an "Apply" button.
 class ClassesPage extends Component<Props, State> {
   state: State = {
     classes: [],
+    myHolds: [],
     loading: true,
     error: '',
     applyingClassId: '',
@@ -25,23 +26,38 @@ class ClassesPage extends Component<Props, State> {
   timer: number | undefined;
 
   componentDidMount() {
-    this.loadClasses();
-    // Reload every 5 seconds so the seat counts stay up to date.
-    this.timer = window.setInterval(this.loadClasses, 5000);
+    this.loadData();
+    this.timer = window.setInterval(this.loadData, 5000);
   }
 
   componentWillUnmount() {
     window.clearInterval(this.timer);
   }
 
-  loadClasses = async () => {
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.studentId !== this.props.studentId) {
+      this.loadData();
+    }
+  }
+
+  loadData = async () => {
     try {
       const classes = await getClasses();
-      this.setState({ classes: classes, loading: false });
+      let myHolds: Hold[] = [];
+      if (isValidStudentId(this.props.studentId)) {
+        myHolds = await getMyHolds(this.props.studentId);
+      }
+      this.setState({ classes: classes, myHolds: myHolds, loading: false });
     } catch (e) {
       this.setState({ error: (e as Error).message, loading: false });
     }
   };
+
+  findActiveHold(classId: string): Hold | undefined {
+    return this.state.myHolds.find(
+      (hold) => hold.classId === classId && (hold.status === 'HELD' || hold.status === 'CONFIRMED'),
+    );
+  }
 
   apply = async (schoolClass: SchoolClass) => {
     if (!isValidStudentId(this.props.studentId)) {
@@ -52,15 +68,34 @@ class ClassesPage extends Component<Props, State> {
     this.setState({ applyingClassId: schoolClass.id, error: '' });
     try {
       await createHold(schoolClass.id, this.props.studentId);
-      this.props.onApplied(); // go to "My applications" to pay
+      this.props.onApplied();
     } catch (e) {
       this.setState({ error: (e as Error).message, applyingClassId: '' });
-      this.loadClasses();
+      this.loadData();
     }
   };
 
+  renderAction(c: SchoolClass) {
+    const activeHold = this.findActiveHold(c.id);
+
+    if (activeHold && activeHold.status === 'CONFIRMED') {
+      return <span className="success">ভর্তি নিশ্চিত</span>;
+    }
+    if (activeHold && activeHold.status === 'HELD') {
+      return <span className="muted">আবেদন করা হয়েছে</span>;
+    }
+    if (c.availableSeats <= 0) {
+      return <span className="muted">আসন নেই</span>;
+    }
+    return (
+      <button onClick={() => this.apply(c)} disabled={this.state.applyingClassId !== ''}>
+        {this.state.applyingClassId === c.id ? 'অপেক্ষা করুন...' : 'আবেদন করুন'}
+      </button>
+    );
+  }
+
   render() {
-    const { classes, loading, error, applyingClassId } = this.state;
+    const { classes, loading, error } = this.state;
 
     return (
       <div>
@@ -93,15 +128,7 @@ class ClassesPage extends Component<Props, State> {
                   <td>{c.confirmedSeats}</td>
                   <td>{c.heldSeats}</td>
                   <td>{c.availableSeats}</td>
-                  <td>
-                    {c.availableSeats > 0 ? (
-                      <button onClick={() => this.apply(c)} disabled={applyingClassId !== ''}>
-                        {applyingClassId === c.id ? 'অপেক্ষা করুন...' : 'আবেদন করুন'}
-                      </button>
-                    ) : (
-                      <span className="muted">আসন নেই</span>
-                    )}
-                  </td>
+                  <td>{this.renderAction(c)}</td>
                 </tr>
               ))}
             </tbody>
