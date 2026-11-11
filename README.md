@@ -14,7 +14,7 @@ See [SPEC.md](SPEC.md) for the requirements and [ASSUMPTIONS.md](ASSUMPTIONS.md)
 You need Docker with Docker Compose.
 
 ```bash
-docker compose up --build
+docker compose up -d --build
 ```
 
 This starts three containers. The backend applies database migrations on startup, so no manual DB setup is needed.
