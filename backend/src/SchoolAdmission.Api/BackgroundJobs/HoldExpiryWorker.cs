@@ -2,10 +2,6 @@ using SchoolAdmission.Application.Holds;
 
 namespace SchoolAdmission.Api.BackgroundJobs;
 
-/// <summary>
-/// Every minute, marks HELD holds whose expiry has passed as EXPIRED.
-/// Request handling already treats such holds as expired lazily; this sweep just brings the stored status up to date.
-/// </summary>
 internal sealed class HoldExpiryWorker(
     IServiceScopeFactory scopeFactory,
     TimeProvider timeProvider,
@@ -29,7 +25,6 @@ internal sealed class HoldExpiryWorker(
     {
         try
         {
-            // HoldService and its DbContext are scoped, so each sweep gets a fresh scope.
             await using var scope = scopeFactory.CreateAsyncScope();
             var holdService = scope.ServiceProvider.GetRequiredService<IHoldService>();
 
@@ -41,11 +36,10 @@ internal sealed class HoldExpiryWorker(
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {
-            // Shutting down.
+            
         }
         catch (Exception ex)
         {
-            // Keep the worker alive; the next tick retries.
             logger.LogError(ex, "Hold expiry sweep failed.");
         }
     }
