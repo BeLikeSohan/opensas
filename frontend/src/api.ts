@@ -11,7 +11,7 @@ import type {
 } from './types';
 import { studentIdError } from './utils/studentId';
 
-const BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5070').replace(/\/+$/, '');
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080').replace(/\/+$/, '');
 
 const STUDENT_ID_HEADER = 'X-Student-Id';
 

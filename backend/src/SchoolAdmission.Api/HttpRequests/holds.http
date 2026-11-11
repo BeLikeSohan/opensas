@@ -1,4 +1,4 @@
-@host = http://localhost:5070
+@host = http://localhost:8080
 @classId = c09d9936-1022-4f23-8425-ceb44d2436c9
 
 ### Hold a seat -> 201 Created
