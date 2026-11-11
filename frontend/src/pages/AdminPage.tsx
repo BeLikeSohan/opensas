@@ -1,53 +1,120 @@
-import { useState } from 'react';
-import AdminClassTable from '../components/AdminClassTable';
-import Alert from '../components/Alert';
-import CreateClassForm from '../components/CreateClassForm';
-import Toast from '../components/Toast';
-import { CLASSES_REFRESH_MS, useClasses } from '../hooks/useClasses';
-import { useToast } from '../hooks/useToast';
-import type { ClassResponse } from '../types';
-import { toBanglaNumber } from '../utils/format';
+import { Component, type FormEvent } from 'react';
+import { createClass, getClasses, type SchoolClass } from '../api';
 
-/** অ্যাডমিন: create classes and see every class with live seat counts. */
-function AdminPage() {
-  const { classes, error, isLoading, refresh } = useClasses();
-  const { toast, show: showToast, dismiss: dismissToast } = useToast();
-  const [lastCreatedId, setLastCreatedId] = useState<string | null>(null);
+type State = {
+  classes: SchoolClass[];
+  name: string; // text in the "class name" box
+  seats: string; // text in the "total seats" box
+  error: string;
+  message: string;
+};
 
-  const handleCreated = (created: ClassResponse) => {
-    setLastCreatedId(created.id);
-    showToast({
-      variant: 'ok',
-      title: 'শ্রেণি যোগ করা হয়েছে',
-      message: `"${created.name}" শ্রেণিতে মোট ${toBanglaNumber(created.totalSeats)}টি আসন রয়েছে।`,
-    });
-    refresh();
+// Create a new class and see all classes.
+class AdminPage extends Component<object, State> {
+  state: State = {
+    classes: [],
+    name: '',
+    seats: '',
+    error: '',
+    message: '',
   };
 
-  return (
-    <main className="page">
-      <div className="page-head">
-        <h1>অ্যাডমিন</h1>
-        <p className="lead">নতুন শ্রেণি যোগ করুন এবং সব শ্রেণির আসনের অবস্থা দেখুন।</p>
+  timer: number | undefined;
+
+  componentDidMount() {
+    this.loadClasses();
+    this.timer = window.setInterval(this.loadClasses, 5000);
+  }
+
+  componentWillUnmount() {
+    window.clearInterval(this.timer);
+  }
+
+  loadClasses = async () => {
+    try {
+      const classes = await getClasses();
+      this.setState({ classes: classes });
+    } catch (e) {
+      this.setState({ error: (e as Error).message });
+    }
+  };
+
+  handleSubmit = async (e: FormEvent) => {
+    e.preventDefault(); // stop the browser from reloading the page
+
+    const name = this.state.name.trim();
+    const seats = Number(this.state.seats);
+    if (name === '' || !Number.isInteger(seats) || seats < 1) {
+      this.setState({ error: 'শ্রেণির নাম এবং ১ বা তার বেশি আসন সংখ্যা দিন।', message: '' });
+      return;
+    }
+
+    try {
+      await createClass(name, seats);
+      this.setState({ name: '', seats: '', error: '', message: '"' + name + '" শ্রেণি যোগ করা হয়েছে।' });
+      this.loadClasses();
+    } catch (err) {
+      this.setState({ error: (err as Error).message, message: '' });
+    }
+  };
+
+  render() {
+    const { classes, name, seats, error, message } = this.state;
+
+    return (
+      <div>
+        <h2>নতুন শ্রেণি যোগ করুন</h2>
+        <form className="box form" onSubmit={this.handleSubmit}>
+          <div>
+            <label htmlFor="class-name">শ্রেণির নাম</label>
+            <input id="class-name" value={name} onChange={(e) => this.setState({ name: e.target.value })} />
+          </div>
+          <div>
+            <label htmlFor="class-seats">মোট আসন</label>
+            <input
+              id="class-seats"
+              type="number"
+              min={1}
+              value={seats}
+              onChange={(e) => this.setState({ seats: e.target.value })}
+            />
+          </div>
+          <button type="submit">যোগ করুন</button>
+        </form>
+
+        {message && <p className="success">{message}</p>}
+        {error && <p className="error">{error}</p>}
+
+        <h2>সব শ্রেণি</h2>
+        {classes.length === 0 ? (
+          <p>এখনো কোনো শ্রেণি নেই।</p>
+        ) : (
+          <table>
+            <thead>
+              <tr>
+                <th>শ্রেণি</th>
+                <th>মোট আসন</th>
+                <th>নিশ্চিত</th>
+                <th>সংরক্ষিত</th>
+                <th>খালি</th>
+              </tr>
+            </thead>
+            <tbody>
+              {classes.map((c) => (
+                <tr key={c.id}>
+                  <td>{c.name}</td>
+                  <td>{c.totalSeats}</td>
+                  <td>{c.confirmedSeats}</td>
+                  <td>{c.heldSeats}</td>
+                  <td>{c.availableSeats}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
-
-      <CreateClassForm onCreated={handleCreated} />
-
-      <div className="toolbar">
-        <h2 className="section-title">সব শ্রেণি</h2>
-        <span className="hint">
-          {classes ? `${toBanglaNumber(classes.length)}টি শ্রেণি · ` : ''}আসনের সংখ্যা প্রতি{' '}
-          {toBanglaNumber(CLASSES_REFRESH_MS / 1000)} সেকেন্ডে হালনাগাদ হয়
-        </span>
-      </div>
-
-      {error && <Alert variant="error" message={`শ্রেণির তালিকা লোড করা যায়নি: ${error}`} />}
-      {isLoading && <p className="empty">লোড হচ্ছে...</p>}
-      {classes && <AdminClassTable classes={classes} highlightId={lastCreatedId} />}
-
-      {toast && <Toast toast={toast} onClose={dismissToast} />}
-    </main>
-  );
+    );
+  }
 }
 
 export default AdminPage;

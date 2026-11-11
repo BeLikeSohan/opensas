@@ -1,94 +1,153 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router';
-import Alert from '../components/Alert';
-import ApplicationTabs from '../components/ApplicationTabs';
-import ApplicationsTable, { type ApplicationView } from '../components/ApplicationsTable';
-import HeldBanner from '../components/HeldBanner';
-import StudentIdInput from '../components/StudentIdInput';
-import { useMyHolds } from '../hooks/useMyHolds';
-import { useNow } from '../hooks/useNow';
-import { useStudentId } from '../hooks/useStudentId';
-import { HoldStatus } from '../types';
-import { APPLICATION_TABS, type ApplicationTabKey } from '../utils/applicationTabs';
-import { effectiveStatus } from '../utils/holdStatus';
+import { Component } from 'react';
+import { cancelHold, confirmHold, getMyHolds, isValidStudentId, type Hold } from '../api';
+import Countdown from '../Countdown';
 
-function MyApplicationsPage() {
-  const { studentId, setStudentId, isValid } = useStudentId();
-  const { holds, error, isLoading, refresh } = useMyHolds(studentId, isValid);
-  const [activeTab, setActiveTab] = useState<ApplicationTabKey>('all');
-  const now = useNow();
+const STATUS_TEXT = {
+  HELD: 'সংরক্ষিত',
+  CONFIRMED: 'নিশ্চিত',
+  EXPIRED: 'মেয়াদোত্তীর্ণ',
+  CANCELLED: 'বাতিল',
+};
 
-  // Newest deadline first; status is re-derived every second so expiries show without a reload.
-  const applications = useMemo<ApplicationView[]>(
-    () =>
-      [...(holds ?? [])]
-        .sort((a, b) => new Date(b.expiresAt).getTime() - new Date(a.expiresAt).getTime())
-        .map((hold) => ({ hold, status: effectiveStatus(hold, now) })),
-    [holds, now],
-  );
+type Props = {
+  studentId: string;
+};
 
-  // A hold just ran out on the clock: ask the server for its real status.
-  const expiredLocally = applications.some(
-    (a) => a.hold.status === HoldStatus.HELD && a.status === HoldStatus.EXPIRED,
-  );
-  useEffect(() => {
-    if (expiredLocally) refresh();
-  }, [expiredLocally, refresh]);
+type State = {
+  holds: Hold[];
+  error: string;
+  message: string;
+  busy: boolean; // true while a pay/cancel request is running
+};
 
-  const tab = APPLICATION_TABS.find((t) => t.key === activeTab) ?? APPLICATION_TABS[0];
-  const visible = applications.filter((a) => tab.match(a.status));
-  const activeHold = applications.find((a) => a.status === HoldStatus.HELD)?.hold;
+// Shows the student's applications. A HELD one has a timer and Pay / Cancel buttons.
+class MyApplicationsPage extends Component<Props, State> {
+  state: State = {
+    holds: [],
+    error: '',
+    message: '',
+    busy: false,
+  };
 
-  return (
-    <main className="page">
-      <div className="page-head page-head--split">
-        <div>
-          <h1>আমার আবেদন</h1>
-          {isValid ? (
-            <p className="lead">
-              জন্ম নিবন্ধন নম্বর <span className="mono lead__id">{studentId}</span> এর সব আবেদন — পেজ রিফ্রেশ করলে
-              বা অন্য ডিভাইস থেকে খুললেও এখানে থাকবে।{' '}
-              <button type="button" className="link-btn" onClick={() => setStudentId('')}>
-                নম্বর পরিবর্তন করুন
-              </button>
-            </p>
-          ) : (
-            <p className="lead">আপনার আবেদনগুলো দেখতে জন্ম নিবন্ধন নম্বর দিন।</p>
-          )}
-        </div>
-        <Link className="btn-dark" to="/">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
-            <path d="M12 5v14M5 12h14" />
-          </svg>
-          শ্রেণিতে আবেদন করুন
-        </Link>
+  timer: number | undefined;
+
+  componentDidMount() {
+    this.loadHolds();
+    // Reload every 5 seconds so status changes show up.
+    this.timer = window.setInterval(this.loadHolds, 5000);
+  }
+
+  componentWillUnmount() {
+    window.clearInterval(this.timer);
+  }
+
+  // Runs after every re-render. Reload when the student ID was changed.
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.studentId !== this.props.studentId) {
+      this.loadHolds();
+    }
+  }
+
+  loadHolds = async () => {
+    if (!isValidStudentId(this.props.studentId)) {
+      this.setState({ holds: [] });
+      return;
+    }
+    try {
+      const holds = await getMyHolds(this.props.studentId);
+      this.setState({ holds: holds, error: '' });
+    } catch (e) {
+      this.setState({ error: (e as Error).message });
+    }
+  };
+
+  pay = async (hold: Hold) => {
+    this.setState({ busy: true, error: '', message: '' });
+    try {
+      await confirmHold(hold.holdId, this.props.studentId);
+      this.setState({ message: '"' + hold.className + '" শ্রেণিতে ভর্তি নিশ্চিত হয়েছে।' });
+    } catch (e) {
+      this.setState({ error: (e as Error).message });
+    }
+    this.setState({ busy: false });
+    this.loadHolds();
+  };
+
+  cancel = async (hold: Hold) => {
+    if (!window.confirm('"' + hold.className + '" শ্রেণির আবেদন বাতিল করতে চান?')) {
+      return;
+    }
+    this.setState({ busy: true, error: '', message: '' });
+    try {
+      await cancelHold(hold.holdId, this.props.studentId);
+      this.setState({ message: 'আবেদন বাতিল করা হয়েছে।' });
+    } catch (e) {
+      this.setState({ error: (e as Error).message });
+    }
+    this.setState({ busy: false });
+    this.loadHolds();
+  };
+
+  render() {
+    const { holds, error, message, busy } = this.state;
+
+    if (!isValidStudentId(this.props.studentId)) {
+      return <p>আপনার আবেদনগুলো দেখতে উপরে জন্ম নিবন্ধন নম্বর দিন।</p>;
+    }
+
+    return (
+      <div>
+        <h2>আমার আবেদন</h2>
+
+        {message && <p className="success">{message}</p>}
+        {error && <p className="error">{error}</p>}
+        {holds.length === 0 && <p>কোনো আবেদন নেই।</p>}
+
+        {holds.length > 0 && (
+          <table>
+            <thead>
+              <tr>
+                <th>শ্রেণি</th>
+                <th>অবস্থা</th>
+                <th>বাকি সময়</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {holds.map((hold) => (
+                <tr key={hold.holdId}>
+                  <td>{hold.className}</td>
+                  <td>
+                    <span className={'status status-' + hold.status}>{STATUS_TEXT[hold.status]}</span>
+                  </td>
+                  <td>
+                    {hold.status === 'HELD' ? (
+                      // When the timer hits 0, reload: the backend will now say EXPIRED.
+                      <Countdown expiresAt={hold.expiresAt} onExpire={this.loadHolds} />
+                    ) : (
+                      '-'
+                    )}
+                  </td>
+                  <td>
+                    {hold.status === 'HELD' && (
+                      <>
+                        <button onClick={() => this.pay(hold)} disabled={busy}>
+                          ভর্তি ফি পরিশোধ করুন
+                        </button>{' '}
+                        <button className="secondary" onClick={() => this.cancel(hold)} disabled={busy}>
+                          বাতিল করুন
+                        </button>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
-
-      {!isValid && <StudentIdInput value={studentId} onChange={setStudentId} />}
-
-      {isValid && (
-        <>
-          {error && <Alert variant="error" message={`আবেদনের তালিকা লোড করা যায়নি: ${error}`} />}
-
-          {isLoading && <p className="empty">লোড হচ্ছে...</p>}
-
-          {holds && (
-            <>
-              {activeHold && <HeldBanner hold={activeHold} now={now} />}
-
-              <ApplicationTabs
-                statuses={applications.map((a) => a.status)}
-                active={activeTab}
-                onChange={setActiveTab}
-              />
-
-              <ApplicationsTable applications={visible} now={now} />
-            </>
-          )}
-        </>
-      )}
-    </main>
-  );
+    );
+  }
 }
 
 export default MyApplicationsPage;
