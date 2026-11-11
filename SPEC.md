@@ -8,9 +8,6 @@ Backend Port: 8080
 ORM: Entity Framework Core 10
 DB Driver: Npgsql
 
-Issues:
-1. the count query isn't a seat lock. When holds are created later, the "seats must never be exceeded" rule needs its own transactional check there.
-
 - `HELD` — Seat temporarily reserved.
 - `CONFIRMED` — Admission confirmed.
 - `EXPIRED` — Hold expired without confirmation.
